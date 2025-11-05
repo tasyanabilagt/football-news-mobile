@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:football_news/widgets/left_drawer.dart';
+import 'package:football_news/newslist_form.dart';
 
 class MyHomePage extends StatelessWidget {
-  MyHomePage({super.key}); // no required params
+  const MyHomePage({super.key});
 
-  // >>> isi kamu
-  final String nama = "Tasya Nabila Anggita Saragih"; // nama
-  final String npm  = "2406351005"; // npm
-  final String kelas = "F"; // kelas
+  final String nama = "Tasya Nabila Anggita Saragih";
+  final String npm = "2406351005";
+  final String kelas = "F";
 
   final List<ItemHomepage> items = const [
     ItemHomepage("See Football News", Icons.newspaper),
@@ -24,41 +25,39 @@ class MyHomePage extends StatelessWidget {
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
+      drawer: const LeftDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // === INFO CARD BARIS ===
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                InfoCard(title: 'NPM',  content: npm),
+                InfoCard(title: 'NPM', content: npm),
                 InfoCard(title: 'Name', content: nama),
                 InfoCard(title: 'Class', content: kelas),
               ],
             ),
             const SizedBox(height: 16.0),
-            Center(
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 16.0),
-                    child: Text(
-                      'Selamat datang di Football News',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
-                    ),
-                  ),
-                  GridView.count(
-                    padding: const EdgeInsets.all(20),
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    crossAxisCount: 3,
-                    shrinkWrap: true,
-                    primary: false, // biar gak bentrok scroll-nya
-                    children: items.map((item) => ItemCard(item)).toList(),
-                  ),
-                ],
+
+            // === WELCOME TEXT + GRID ===
+            const Padding(
+              padding: EdgeInsets.only(top: 16.0),
+              child: Text(
+                'Selamat datang di Football News',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
               ),
+            ),
+            GridView.count(
+              padding: const EdgeInsets.all(20),
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              primary: false,
+              children: items.map((item) => ItemCard(item)).toList(),
             ),
           ],
         ),
@@ -113,7 +112,15 @@ class ItemCard extends StatelessWidget {
             ..showSnackBar(
               SnackBar(content: Text("Kamu telah menekan tombol ${item.name}!")),
             );
+
+          if (item.name == "Add News") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const NewsFormPage()),
+            );
+          }
         },
+        borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(8),
           child: Center(
