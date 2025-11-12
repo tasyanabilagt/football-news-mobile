@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:football_news/widgets/left_drawer.dart';
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:football_news/menu.dart';
 
 class NewsFormPage extends StatefulWidget {
   const NewsFormPage({super.key});
@@ -27,6 +31,7 @@ class _NewsFormPageState extends State<NewsFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Center(child: Text('Form Tambah Berita')),
@@ -116,32 +121,40 @@ class _NewsFormPageState extends State<NewsFormPage> {
                 alignment: Alignment.bottomCenter,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo),
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Berita berhasil disimpan!'),
-                          content: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('Judul: $_title'),
-                              Text('Isi: $_content'),
-                              Text('Kategori: $_category'),
-                              Text('Thumbnail: $_thumbnail'),
-                              Text('Unggulan: ${_isFeatured ? "Ya" : "Tidak"}'),
-                            ],
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        ),
+                      // TODO: Replace the URL with your app's URL
+                      // To connect Android emulator with Django on localhost, use URL http://10.0.2.2/
+                      // If you using chrome,  use URL http://localhost:8000
+
+                      final response = await request.postJson(
+                        "http://localhost:8000/create-flutter/",
+                        jsonEncode({
+                          "title": _title,
+                          "content": _content,
+                          "thumbnail": _thumbnail,
+                          "category": _category,
+                          "is_featured": _isFeatured,
+                        }),
                       );
-                      _formKey.currentState!.reset();
+                      if (context.mounted) {
+                        if (response['status'] == 'success') {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text("News successfully saved!"),
+                          ));
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MyHomePage()),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text("Something went wrong, please try again."),
+                          ));
+                        }
+                      }
                     }
                   },
                   child: const Text("Simpan", style: TextStyle(color: Colors.white)),
